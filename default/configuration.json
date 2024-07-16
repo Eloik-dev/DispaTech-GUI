@@ -1,0 +1,12 @@
+[
+    {
+        "start": 0,
+        "stop": 15.75,
+        "fileName": "test.png"
+    },
+    {
+        "start": 15.75,
+        "stop": 30,
+        "fileName": "video.mp4"
+    }
+]
