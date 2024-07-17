@@ -1,14 +1,14 @@
 [
     {
         "duration": 5,
-        "fileName": "image.png"
+        "name": "image.png"
     },
     {
         "duration": 5,
-        "fileName": "image2.png"
+        "name": "image2.png"
     },
     {
-        "duration": 5,
-        "fileName": "image3.png"
+        "duration": 23,
+        "name": "video.mp4"
     }
 ]

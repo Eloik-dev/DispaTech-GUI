@@ -14,7 +14,6 @@ FileManager::FileManager(GtkWidget *window)
     this->window = window;
     this->currentFileIndex = 0;
     this->initializeFilesDirectory();
-    this->readFileConfiguration();
     this->startSlideshow();
 }
 
@@ -45,12 +44,13 @@ void FileManager::readFileConfiguration()
         std::ifstream f(CONFIGURATION_FILE);
         json configuration = json::parse(f);
 
+        this->files.clear();
         for (json::iterator it = configuration.begin(); it != configuration.end(); ++it)
         {
             json file_object = it.value();
             File *file = new File{
                 file_object["duration"].get<double>() * 1000,
-                file_object["fileName"].get<std::string>()};
+                file_object["name"].get<std::string>()};
 
             this->files.push_back(file);
         }
@@ -148,6 +148,8 @@ gboolean FileManager::onRestartSlideshow(gpointer arguments)
 
 void FileManager::startSlideshow()
 {
+    this->readFileConfiguration();
+
     int delay = 0;
 
     for (int i = 0; i < this->files.size(); i++)
