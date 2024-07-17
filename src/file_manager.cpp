@@ -49,8 +49,7 @@ void FileManager::readFileConfiguration()
         {
             json file_object = it.value();
             File *file = new File{
-                file_object["start"].get<int>(),
-                file_object["stop"].get<int>(),
+                file_object["duration"].get<double>() * 1000,
                 file_object["fileName"].get<std::string>()};
 
             this->files.push_back(file);
@@ -64,61 +63,105 @@ void FileManager::readFileConfiguration()
     }
 }
 
-gboolean FileManager::timeoutCallback(gpointer arguments)
+int FileManager::getFileExtensionCode(string fileName)
 {
-    cout << "Calling callback" << endl;
-    GtkCallbackData *data = static_cast<GtkCallbackData *>(arguments);
-    File *file = data->file;
+    string extension = fileName.substr(fileName.find_last_of(".") + 1);
 
-    cout << "Showing file " << file->name << endl;
+    if (extension == "png")
+    {
+        return IMAGE_FILE_CODE;
+    }
+
+    if (extension == "mp4")
+    {
+        return VIDEO_FILE_CODE;
+    }
+
+    return -1;
+}
+
+GtkWidget *FileManager::getImageWidget(File *file)
+{
     string directory = FILES_DIRECTORY;
     string path = directory + "/" + file->name;
     cout << path.c_str() << endl;
-    GtkWidget *image = gtk_image_new_from_file(path.c_str());
-    gtk_window_set_child(GTK_WINDOW(data->window), image);
+    return gtk_image_new_from_file(path.c_str());
+}
 
-    return G_SOURCE_CONTINUE;
+GtkWidget *FileManager::getVideoWidget(File *file)
+{
+    string directory = FILES_DIRECTORY;
+    string path = directory + "/" + file->name;
+    cout << path.c_str() << endl;
+
+    GtkMediaStream *media_stream = gtk_media_file_new_for_filename(path.c_str());
+
+    GtkWidget *media_controls = gtk_media_controls_new(media_stream);
+    gtk_widget_set_visible(media_controls, FALSE);
+
+    GtkWidget *video = gtk_video_new_for_media_stream(media_stream);
+
+    gtk_media_controls_set_media_stream(GTK_MEDIA_CONTROLS(media_controls), media_stream);
+    gtk_media_stream_play(media_stream);
+    return video;
+}
+
+gboolean FileManager::timeoutCallback(gpointer arguments)
+{
+    GtkCallbackData *data = static_cast<GtkCallbackData *>(arguments);
+    File *file = data->file;
+
+    int file_extension_code = FileManager::getFileExtensionCode(file->name);
+
+    GtkWidget *widget;
+    switch (file_extension_code)
+    {
+    case IMAGE_FILE_CODE:
+        widget = FileManager::getImageWidget(file);
+        break;
+    case VIDEO_FILE_CODE:
+        widget = FileManager::getVideoWidget(file);
+        break;
+    default:
+        cerr << "There was an error reading the file: " << file->name << endl;
+        return FALSE;
+        break;
+    }
+
+    gtk_window_set_child(GTK_WINDOW(data->window), widget);
+
+    if (file == data->manager->files.back())
+    {
+        g_timeout_add(file->duration, onRestartSlideshow, data->manager);
+    }
+
+    return FALSE;
+}
+
+gboolean FileManager::onRestartSlideshow(gpointer arguments)
+{
+    FileManager *manager = static_cast<FileManager *>(arguments);
+    manager->startSlideshow();
+
+    return FALSE;
 }
 
 void FileManager::startSlideshow()
 {
-    File *file = this->files[this->currentFileIndex];
+    int delay = 0;
 
-    GtkCallbackData *data = new GtkCallbackData{file, this->window};
-
-    g_timeout_add(5000, timeoutCallback, data);
-
-    if (this->currentFileIndex >= this->files.size())
+    for (int i = 0; i < this->files.size(); i++)
     {
-        this->currentFileIndex = 0;
-    }
-    else
-    {
-        this->currentFileIndex++;
+        File *file = this->files[i];
+        GtkCallbackData *data = new GtkCallbackData;
+        data->file = file;
+        data->window = this->window;
+        data->manager = this;
+
+        cout << "Next delay: " << delay << endl;
+
+        g_timeout_add(delay, timeoutCallback, data);
+
+        delay += file->duration;
     }
 }
-
-/*static gboolean FileManager::showFileRecursive(File *file, int currentFileIndex)
-{
-    try
-    {
-        File *file = this->files[this->currentFileIndex];
-        GtkWidget *image = gtk_image_new_from_file(FILES_DIRECTORY + "/" + file->name);
-        gtk_window_set_child(GTK_WINDOW(window), image);
-    }
-    catch (const exception &ex)
-    {
-        cout << ex.what() << endl;
-    }
-
-    if (this->files.size() > this->currentFileIndex)
-    {
-        currentFileIndex = 0;
-    }
-    else
-    {
-        this->currentFileIndex++;
-    }
-
-    g_timeout_add(3000, this->showFileRecursive, NULL);
-}*/

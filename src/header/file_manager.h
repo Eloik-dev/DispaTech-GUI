@@ -3,15 +3,18 @@
 
 #define FILES_DIRECTORY "files"
 #define CONFIGURATION_FILE "configuration.json"
+#define IMAGE_FILE_CODE 0
+#define VIDEO_FILE_CODE 1
 
 #include <string>
 #include <vector>
 #include <gtk/gtk.h>
 
+class FileManager;
+
 struct File
 {
-    int start;
-    int stop;
+    double duration;
     std::string name;
 };
 
@@ -19,6 +22,7 @@ struct GtkCallbackData
 {
     File *file;
     GtkWidget *window;
+    FileManager *manager;
 };
 
 class FileManager
@@ -41,10 +45,16 @@ private:
 
     static gboolean timeoutCallback(gpointer);
 
+    static gboolean onRestartSlideshow(gpointer);
+
     /**
      * Shows the next file to be shown
      */
     void startSlideshow();
+
+    static int getFileExtensionCode(std::string);
+    static GtkWidget *getImageWidget(File *);
+    static GtkWidget *getVideoWidget(File *);
 
 public:
     FileManager(GtkWidget *);

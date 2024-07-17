@@ -38,12 +38,5 @@ void Controller::initializeWindow(GtkApplication *app, gpointer user_data) {
 
     FileManager *fileManager = new FileManager(window);
 
-    /*try {
-        GtkWidget *video = gtk_video_new_for_filename("/home/ubuntu/Desktop/dispatech-gui/files/video.mp4");
-        gtk_window_set_child(GTK_WINDOW(window), video);
-    } catch (const exception& ex) {
-        cout << ex.what() << endl;
-    }*/
-
     gtk_window_present(GTK_WINDOW(window));
 }
