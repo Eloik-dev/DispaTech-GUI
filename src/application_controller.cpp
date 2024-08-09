@@ -1,7 +1,4 @@
-#include "header/controller.h"
-#include "header/file_manager.h"
-#include <filesystem>
-#include <iostream>
+#include "header/application_controller.h"
 
 using namespace std;
 namespace fs = filesystem;

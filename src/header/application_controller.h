@@ -3,6 +3,9 @@
 
 #include <string>
 #include <gtk/gtk.h>
+#include <filesystem>
+#include <iostream>
+#include "file_manager.h"
 
 class Controller
 {
@@ -13,11 +16,12 @@ private:
      * Fait l'initialisation de l'application GTK4
      */
     void initializeApplication(int, char **);
-    
+
     /**
      * Callback d'activation de l'application
      */
     static void initializeWindow(GtkApplication *, gpointer);
+
 public:
     Controller(int, char **);
 };

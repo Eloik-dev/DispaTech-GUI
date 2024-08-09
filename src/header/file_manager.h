@@ -6,8 +6,12 @@
 #define IMAGE_FILE_CODE 0
 #define VIDEO_FILE_CODE 1
 
+#include <iostream>
+#include <filesystem>
 #include <string>
+#include <fstream>
 #include <vector>
+#include <nlohmann/json.hpp>
 #include <gtk/gtk.h>
 
 class FileManager;
