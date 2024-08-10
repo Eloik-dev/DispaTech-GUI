@@ -2,6 +2,8 @@
 
 using json = nlohmann::json;
 
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Settings, env, api_url, hostname, public_encryption_key, registration_key, encrypted_registration_key);
+
 WebSocketController::WebSocketController(struct Settings *settings)
 {
     this->_settings = settings;
@@ -40,11 +42,11 @@ void WebSocketController::on_open()
 {
     std::cout << "Connected to server" << std::endl;
 
-    json data = {
-        "register_key", this->_settings->registration_key,
-        "encrypted_register_key", this->_settings->encrypted_registration_key};
+    json registration_key = {"registration_key", this->_settings->registration_key};
+    json encrypted_registration_key = {"encrypted_registration_key", this->_settings->encrypted_registration_key};
+    json data = {registration_key, encrypted_registration_key};
 
-    this->_client->socket()->emit("linux_join", data.dump());
+    this->_client->socket()->emit("device_join", data.dump());
 }
 
 void WebSocketController::on_message(sio::event &ev)

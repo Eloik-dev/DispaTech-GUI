@@ -3,7 +3,7 @@
 bool RSAController::encryptString(const std::string &regKey, const std::string &publicKeyFile, std::string &encryptedKey)
 {
     // Load the public key
-    std::ifstream pubKeyFile("encryption_key.pub", std::ios::binary);
+    std::ifstream pubKeyFile(publicKeyFile, std::ios::binary);
     if (!pubKeyFile)
     {
         std::cerr << "Error opening public key file." << std::endl;
@@ -18,8 +18,6 @@ bool RSAController::encryptString(const std::string &regKey, const std::string &
     if (!evpKey)
     {
         std::cerr << "Error reading public key." << std::endl;
-        std::cerr << pubKeyStr.data() << std::endl;
-        std::cerr << pubKeyStr.size() << std::endl;
         return false;
     }
 
@@ -47,6 +45,22 @@ bool RSAController::encryptString(const std::string &regKey, const std::string &
         return false;
     }
 
+    if (EVP_PKEY_CTX_set_rsa_oaep_md(ctx, EVP_sha256()) <= 0)
+    {
+        std::cerr << "Error setting OAEP message digest." << std::endl;
+        EVP_PKEY_CTX_free(ctx);
+        EVP_PKEY_free(evpKey);
+        return false;
+    }
+
+    if (EVP_PKEY_CTX_set_rsa_mgf1_md(ctx, EVP_sha1()) <= 0)
+    {
+        std::cerr << "Error setting MGF1 message digest." << std::endl;
+        EVP_PKEY_CTX_free(ctx);
+        EVP_PKEY_free(evpKey);
+        return false;
+    }
+
     size_t outLen;
     if (EVP_PKEY_encrypt(ctx, nullptr, &outLen, reinterpret_cast<const unsigned char *>(regKey.c_str()), regKey.size()) <= 0)
     {
@@ -65,9 +79,8 @@ bool RSAController::encryptString(const std::string &regKey, const std::string &
         return false;
     }
 
-    std::string buffer;
-    buffer.assign(outBuf.begin(), outBuf.end());
-    encryptedKey.assign(this->base64Encode(buffer));
+    std::string buffer(outBuf.begin(), outBuf.end());
+    encryptedKey = base64Encode(buffer);
 
     EVP_PKEY_CTX_free(ctx);
     EVP_PKEY_free(evpKey);
