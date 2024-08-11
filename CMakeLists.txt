@@ -7,6 +7,7 @@ find_package(nlohmann_json REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread)
 find_package(OpenSSL REQUIRED)
+find_package(CURL REQUIRED)
 pkg_check_modules(GTK4 REQUIRED IMPORTED_TARGET gtk4)
 pkg_search_module(gstreamer REQUIRED IMPORTED_TARGET gstreamer-1.0)
 pkg_search_module(gstreamer-sdp REQUIRED IMPORTED_TARGET gstreamer-sdp-1.0)
@@ -33,4 +34,5 @@ target_link_libraries(dispatech-gui
     sioclient
     OpenSSL::SSL
     OpenSSL::Crypto
+    curl
 )

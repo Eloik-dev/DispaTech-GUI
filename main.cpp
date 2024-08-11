@@ -1,7 +1,5 @@
 #include "main.h"
 
-using namespace std;
-
 struct Settings *generateSettings()
 {
     struct Settings *settings = new Settings;
@@ -33,7 +31,18 @@ int main(int argc, char **argv)
     struct Settings *settings = generateSettings();
 
     WebSocketController *websocket_controller = new WebSocketController(settings);
-    Controller *controller = new Controller(argc, argv);
+
+    while (settings->jwt_token.size() == 0)
+    {
+        cout << "Waiting for JWT token to be set by Websocket..." << endl;
+        sleep_for(seconds(1));
+    }
+
+    FileManager *fileManager = new FileManager();
+    ConfigurationController *configurationController = new ConfigurationController(settings);
+
+    Controller *controller = new Controller(fileManager);
+    controller->initializeApplication(argc, argv);
 
     return 1;
 }

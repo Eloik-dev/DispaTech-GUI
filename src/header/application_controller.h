@@ -11,19 +11,39 @@ class Controller
 {
 private:
     GtkApplication *application;
-
-    /**
-     * Fait l'initialisation de l'application GTK4
-     */
-    void initializeApplication(int, char **);
+    GtkWidget *window;
+    FileManager *_fileManager;
 
     /**
      * Callback d'activation de l'application
      */
     static void initializeWindow(GtkApplication *, gpointer);
 
+    static gboolean timeoutCallback(gpointer);
+
+    static gboolean onRestartSlideshow(gpointer arguments);
+
+    /**
+     * Shows the next file to be shown
+     */
+    void startSlideshow();
+
+    static int getFileExtensionCode(std::string);
+    static GtkWidget *getImageWidget(File *);
+    static GtkWidget *getVideoWidget(File *);
+
+    /**
+     * Validates that a file exists
+     */
+    static bool file_exists(std::string fileName);
+
 public:
-    Controller(int, char **);
+    Controller(FileManager *fileManager);
+
+    /**
+     * Fait l'initialisation de l'application GTK4
+     */
+    void initializeApplication(int, char **);
 };
 
 #endif

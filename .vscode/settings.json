@@ -75,6 +75,7 @@
         "source_location": "cpp",
         "future": "cpp",
         "*.ipp": "cpp",
-        "sio_client.h": "c"
+        "sio_client.h": "c",
+        "ranges": "cpp"
     },
 }

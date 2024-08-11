@@ -17,7 +17,7 @@ private:
     void initializeConnection();
 
     void on_open();
-    void on_message(sio::event &ev);
+    void on_token_update(sio::event &ev);
     void on_fail();
     void on_close(sio::client::close_reason const &reason);
 
