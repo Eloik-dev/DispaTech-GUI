@@ -57,17 +57,19 @@ void FileManager::readFileConfiguration()
     try
     {
         std::ifstream f(CONFIGURATION_FILE);
+
+        if (f.good() == false)
+        {
+            cerr << "Could not read configuration file" << endl;
+            return;
+        }
+
         json configuration = json::parse(f);
 
-        std::cout << "dawdwa" << std::endl;
-        std::cout << this->files.size() << std::endl;
         if (!this->files.empty())
         {
-            std::cout << "dawdwa1" << std::endl;
             this->files.clear();
-            std::cout << "dawdwa2" << std::endl;
         }
-        std::cout << "dawdwa3" << std::endl;
 
         for (json::iterator it = configuration.begin(); it != configuration.end(); ++it)
         {
@@ -95,7 +97,7 @@ int FileManager::getFileExtensionCode(string fileName)
     {
         return IMAGE_FILE_CODE;
     }
-    
+
     if (extension == "jpg")
     {
         return IMAGE_FILE_CODE;

@@ -6,6 +6,7 @@
 #include <string>
 #include <thread>
 #include <nlohmann/json.hpp>
+#include "configuration_controller.h"
 #include "settings.h"
 
 class WebSocketController
@@ -18,6 +19,7 @@ private:
 
     void on_open();
     void on_token_update(sio::event &ev);
+    void on_config_update(sio::event &ev);
     void on_fail();
     void on_close(sio::client::close_reason const &reason);
 

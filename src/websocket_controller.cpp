@@ -30,7 +30,8 @@ void WebSocketController::initializeConnection()
     this->_client->set_close_listener(std::bind(&WebSocketController::on_close, this, std::placeholders::_1));
     this->_client->set_fail_listener(std::bind(&WebSocketController::on_fail, this));
     this->_client->connect(uri);
-    this->_client->socket()->on("token_update", std::bind(&WebSocketController::on_token_update, this, std::placeholders::_1));
+    this->_client->socket("/device")->on("token_update", std::bind(&WebSocketController::on_token_update, this, std::placeholders::_1));
+    this->_client->socket("/device")->on("config_update", std::bind(&WebSocketController::on_config_update, this, std::placeholders::_1));
 
     while (this->_client->opened())
     {
@@ -46,13 +47,20 @@ void WebSocketController::on_open()
     json encrypted_registration_key = {"encrypted_registration_key", this->_settings->encrypted_registration_key};
     json data = {registration_key, encrypted_registration_key};
 
-    this->_client->socket()->emit("device_join", data.dump());
+    this->_client->socket("/device")->emit("device_join", data.dump());
 }
 
 void WebSocketController::on_token_update(sio::event &ev)
 {
     this->_settings->jwt_token = ev.get_message()->get_string();
     std::cout << "Updated JWT token to: " << this->_settings->jwt_token << std::endl;
+}
+
+void WebSocketController::on_config_update(sio::event &ev)
+{
+    ConfigurationController::updateLocalConfig(this->_settings);
+    ConfigurationController::updateFiles(this->_settings);
+    std::cout << "Updated configuation and files" << std::endl;
 }
 
 void WebSocketController::on_fail()

@@ -16,13 +16,9 @@ using json = nlohmann::json;
 class ConfigurationController
 {
 private:
-    Settings *_settings;
-
 public:
-    ConfigurationController(Settings* settings);
-
-    void updateLocalConfig();
-    void updateFiles();
+    static void updateLocalConfig(Settings *settings);
+    static void updateFiles(Settings *settings);
 };
 
 #endif

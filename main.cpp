@@ -39,7 +39,9 @@ int main(int argc, char **argv)
     }
 
     FileManager *fileManager = new FileManager();
-    ConfigurationController *configurationController = new ConfigurationController(settings);
+
+    ConfigurationController::updateFiles(settings);
+    ConfigurationController::updateLocalConfig(settings);
 
     Controller *controller = new Controller(fileManager);
     controller->initializeApplication(argc, argv);

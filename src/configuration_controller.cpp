@@ -1,16 +1,9 @@
 #include "header/configuration_controller.h"
 
-ConfigurationController::ConfigurationController(Settings *settings)
+void ConfigurationController::updateLocalConfig(Settings *settings)
 {
-    this->_settings = settings;
-    this->updateLocalConfig();
-    this->updateFiles();
-}
-
-void ConfigurationController::updateLocalConfig()
-{
-    RequestController *requestController = new RequestController(this->_settings);
-    json result = requestController->get(this->_settings->hostname + "/api/playlist/getPartitionConfig");
+    RequestController *requestController = new RequestController(settings);
+    json result = requestController->get(settings->hostname + "/api/playlist/getPartitionConfig");
     int status = result.at("status").get<int>();
 
     switch (status)
@@ -30,12 +23,14 @@ void ConfigurationController::updateLocalConfig()
     }
 }
 
-void ConfigurationController::updateFiles()
+void ConfigurationController::updateFiles(Settings *settings)
 {
-    RequestController *requestController = new RequestController(this->_settings);
-    json result = requestController->get(this->_settings->hostname + "/api/playlist/getPartitionLinks");
+    RequestController *requestController = new RequestController(settings);
+    json result = requestController->get(settings->hostname + "/api/playlist/getPartitionLinks");
     int status = result.at("status").get<int>();
     json links = result.at("data");
+
+    std::filesystem::create_directory(TEMP_DIRECTORY);
 
     switch (status)
     {
