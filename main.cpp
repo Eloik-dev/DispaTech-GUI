@@ -32,17 +32,7 @@ int main(int argc, char **argv)
 
     WebSocketController *websocket_controller = new WebSocketController(settings);
 
-    while (settings->jwt_token.size() == 0)
-    {
-        cout << "Waiting for JWT token to be set by Websocket..." << endl;
-        sleep_for(seconds(1));
-    }
-
     FileManager *fileManager = new FileManager();
-
-    ConfigurationController::updateFiles(settings);
-    ConfigurationController::updateLocalConfig(settings);
-
     Controller *controller = new Controller(fileManager);
     controller->initializeApplication(argc, argv);
 

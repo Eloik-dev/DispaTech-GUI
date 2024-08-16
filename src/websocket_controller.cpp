@@ -35,8 +35,17 @@ void WebSocketController::initializeConnection()
 
     while (this->_client->opened())
     {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        sleep_for(seconds(1));
     }
+
+    while (this->_settings->jwt_token.size() == 0)
+    {
+        std::cout << "Waiting for JWT token to be set by Websocket..." << std::endl;
+        sleep_for(seconds(10));
+    }
+
+    ConfigurationController::updateFiles(this->_settings);
+    ConfigurationController::updateLocalConfig(this->_settings);
 }
 
 void WebSocketController::on_open()
@@ -61,6 +70,8 @@ void WebSocketController::on_config_update(sio::event &ev)
     ConfigurationController::updateLocalConfig(this->_settings);
     ConfigurationController::updateFiles(this->_settings);
     std::cout << "Updated configuation and files" << std::endl;
+
+    this->_client->socket("/device")->emit("confirm_config_update");
 }
 
 void WebSocketController::on_fail()

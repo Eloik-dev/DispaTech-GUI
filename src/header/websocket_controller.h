@@ -5,9 +5,13 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <chrono>
 #include <nlohmann/json.hpp>
 #include "configuration_controller.h"
 #include "settings.h"
+
+using namespace std::this_thread;
+using namespace std::chrono;
 
 class WebSocketController
 {

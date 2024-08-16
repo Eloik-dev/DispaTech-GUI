@@ -3,8 +3,6 @@
 
 #include <iostream>
 #include <filesystem>
-#include <thread>
-#include <chrono>
 #include <string>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
@@ -20,7 +18,5 @@
 
 using json = nlohmann::json;
 using namespace std;
-using namespace std::this_thread;
-using namespace std::chrono;
 
 #endif

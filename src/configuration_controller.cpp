@@ -57,4 +57,7 @@ void ConfigurationController::updateFiles(Settings *settings)
     std::filesystem::remove_all(FILES_DIRECTORY);
     std::filesystem::copy(TEMP_DIRECTORY, FILES_DIRECTORY);
     std::filesystem::remove_all(TEMP_DIRECTORY);
+
+    std::filesystem::create_directory(TEMP_DIRECTORY);
+    std::filesystem::create_directory(FILES_DIRECTORY);
 }
