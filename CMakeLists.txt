@@ -13,6 +13,7 @@ pkg_search_module(gstreamer REQUIRED IMPORTED_TARGET gstreamer-1.0)
 pkg_search_module(gstreamer-sdp REQUIRED IMPORTED_TARGET gstreamer-sdp-1.0)
 pkg_search_module(gstreamer-app REQUIRED IMPORTED_TARGET gstreamer-app-1.0)
 pkg_search_module(gstreamer-video REQUIRED IMPORTED_TARGET gstreamer-video-1.0)
+pkg_check_modules(MAGIC REQUIRED libmagic)
 
 # Find all project files to compile
 file(GLOB_RECURSE src_files "src/*.cpp" "header/*.h")
@@ -22,6 +23,9 @@ file(COPY "default/" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # Add Socket.IO C++ client library
 find_package(sioclient REQUIRED)
+
+include_directories(${MAGIC_INCLUDE_DIRS})
+link_directories(${MAGIC_LIBRARY_DIRS})
 
 add_executable(dispatech-gui "main.cpp" ${src_files})
 target_link_libraries(dispatech-gui
@@ -35,4 +39,7 @@ target_link_libraries(dispatech-gui
     OpenSSL::SSL
     OpenSSL::Crypto
     curl
+    ${MAGIC_LIBRARIES}
+    Boost::system
+    Boost::thread
 )

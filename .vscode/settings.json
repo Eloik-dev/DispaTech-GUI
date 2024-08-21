@@ -76,6 +76,8 @@
         "future": "cpp",
         "*.ipp": "cpp",
         "sio_client.h": "c",
-        "ranges": "cpp"
+        "ranges": "cpp",
+        "strstream": "cpp",
+        "cfenv": "cpp"
     },
 }

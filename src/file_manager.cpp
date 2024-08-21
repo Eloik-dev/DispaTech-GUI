@@ -89,21 +89,48 @@ void FileManager::readFileConfiguration()
     }
 }
 
-int FileManager::getFileExtensionCode(string fileName)
+int FileManager::getFileExtensionCode(string filePath)
 {
-    string extension = fileName.substr(fileName.find_last_of(".") + 1);
+    magic_t magic = magic_open(MAGIC_MIME_TYPE);
+    if (magic == nullptr)
+    {
+        throw std::runtime_error("Unable to initialize magic library");
+    }
 
-    if (extension == "png")
+    if (magic_load(magic, nullptr) != 0)
+    {
+        magic_close(magic);
+        throw std::runtime_error("Unable to load magic database");
+    }
+
+    const char *mimeType = magic_file(magic, filePath.c_str());
+    if (mimeType == nullptr)
+    {
+        magic_close(magic);
+        throw std::runtime_error("Unable to determine MIME type");
+    }
+
+    std::string mimeTypeStr(mimeType);
+    magic_close(magic);
+
+    std::cout << mimeTypeStr << std::endl;
+
+    if (mimeTypeStr == "image/png")
+    {
+        return IMAGE_FILE_CODE;
+    }
+    
+    if (mimeTypeStr == "image/webp")
     {
         return IMAGE_FILE_CODE;
     }
 
-    if (extension == "jpg")
+    if (mimeTypeStr == "image/jpeg")
     {
         return IMAGE_FILE_CODE;
     }
-
-    if (extension == "mp4")
+    
+    if (mimeTypeStr == "video/mp4")
     {
         return VIDEO_FILE_CODE;
     }

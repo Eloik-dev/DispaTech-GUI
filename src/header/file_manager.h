@@ -11,6 +11,7 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 #include <gtk/gtk.h>
+#include <magic.h>
 #include "settings.h"
 
 class FileManager;

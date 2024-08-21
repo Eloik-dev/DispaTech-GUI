@@ -9,7 +9,6 @@
 #include "src/header/application_controller.h"
 #include "src/header/websocket_controller.h"
 #include "src/header/rsa_controller.h"
-#include "src/header/request_controller.h"
 #include "src/header/configuration_controller.h"
 #include "src/header/settings.h"
 #include "src/header/http_codes.h"

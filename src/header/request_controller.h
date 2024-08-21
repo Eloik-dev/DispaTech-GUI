@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <magic.h>
 #include <curl/curl.h>
 #include "settings.h"
 
@@ -14,8 +15,9 @@ class RequestController
 {
 private:
     Settings *_settings;
-    static size_t WriteCallback(void *contents, size_t size, size_t nmemb, std::string *s);
-    static size_t FileWriteCallback(void *ptr, size_t size, size_t nmemb, FILE *stream);
+    static std::size_t WriteCallback(void *contents, std::size_t size, std::size_t nmemb, std::string *s);
+    static std::size_t FileWriteCallback(void *ptr, std::size_t size, std::size_t nmemb, FILE *stream);
+    static std::size_t HeaderCallback(char *buffer, size_t size, size_t nitems, void *userdata);
 
 public:
     RequestController(Settings *settings);

@@ -95,7 +95,7 @@ gboolean Controller::timeoutCallback(gpointer arguments)
     GtkCallbackData *data = static_cast<GtkCallbackData *>(arguments);
     File *file = data->file;
 
-    int file_extension_code = FileManager::getFileExtensionCode(file->name);
+    int file_extension_code = FileManager::getFileExtensionCode(FILES_DIRECTORY + file->name);
 
     GtkWidget *widget = nullptr;
     switch (file_extension_code)
@@ -108,7 +108,7 @@ gboolean Controller::timeoutCallback(gpointer arguments)
         break;
     default:
         cerr << "There was an error reading the file: " << file->name << endl;
-        return FALSE;
+        break;
     }
 
     if (widget != nullptr)

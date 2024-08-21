@@ -68,6 +68,13 @@ json RequestController::post(const std::string &url, const json &data)
     return json::parse(readBuffer);
 }
 
+size_t RequestController::HeaderCallback(char *buffer, size_t size, size_t nitems, void *userdata)
+{
+    std::string header(buffer, size * nitems);
+    std::cout << "Header: " << header;
+    return size * nitems;
+}
+
 bool RequestController::getFile(const std::string &fileUrl, const std::string &destination)
 {
     CURL *curl;
@@ -81,22 +88,34 @@ bool RequestController::getFile(const std::string &fileUrl, const std::string &d
         fp = fopen(destination.c_str(), "wb");
         if (!fp)
         {
-            throw std::runtime_error("Failed to open file for writing: " + destination);
+            std::cerr << "Failed to open file for writing: " << destination << std::endl;
+            return false;
         }
 
         curl_easy_setopt(curl, CURLOPT_URL, fileUrl.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, FileWriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
         curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
+        curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, HeaderCallback);
 
+        struct curl_slist *headerList = NULL;
+        if (fileUrl.find("amazonaws.com") == std::string::npos)
+        {
+            std::string authorization = "Authorization: jwt_token " + this->_settings->jwt_token;
+            headerList = curl_slist_append(headerList, authorization.c_str());
+        }
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerList);
         res = curl_easy_perform(curl);
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+
         curl_easy_cleanup(curl);
         fclose(fp);
 
-        if (res != CURLE_OK || httpCode != 200)
+        if (res != CURLE_OK || httpCode >= 400)
         {
-            throw std::runtime_error("GET request failed: " + std::string(curl_easy_strerror(res)) + " HTTP code: " + std::to_string(httpCode));
+            std::cerr << "GET request failed: " << curl_easy_strerror(res) << " HTTP code: " << httpCode << std::endl;
+            std::cerr << "Request URL: " << fileUrl << std::endl;
+            return false;
         }
 
         return true;
