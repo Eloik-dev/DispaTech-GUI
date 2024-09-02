@@ -10,6 +10,7 @@ json RequestController::get(const std::string &url)
     CURL *curl;
     CURLcode res;
     std::string readBuffer;
+    long httpCode = 0;
 
     curl = curl_easy_init();
     if (curl)
@@ -25,11 +26,13 @@ json RequestController::get(const std::string &url)
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
         res = curl_easy_perform(curl);
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
         curl_easy_cleanup(curl);
 
-        if (res != CURLE_OK)
+        if (res != CURLE_OK || httpCode >= 400)
         {
-            std::runtime_error("GET request failed: " + std::string(curl_easy_strerror(res)));
+            std::cerr << "GET request failed: " << curl_easy_strerror(res) << " HTTP code: " << httpCode << std::endl;
+            return false;
         }
     }
 
@@ -41,6 +44,7 @@ json RequestController::post(const std::string &url, const json &data)
     CURL *curl;
     CURLcode res;
     std::string readBuffer;
+    long httpCode = 0;
 
     curl = curl_easy_init();
     if (curl)
@@ -57,11 +61,13 @@ json RequestController::post(const std::string &url, const json &data)
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
         res = curl_easy_perform(curl);
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
         curl_easy_cleanup(curl);
 
-        if (res != CURLE_OK)
+        if (res != CURLE_OK || httpCode >= 400)
         {
-            std::runtime_error("POST request failed: " + std::string(curl_easy_strerror(res)));
+            std::cerr << "POST request failed: " << curl_easy_strerror(res) << " HTTP code: " << httpCode << std::endl;
+            return false;
         }
     }
 
@@ -70,8 +76,6 @@ json RequestController::post(const std::string &url, const json &data)
 
 size_t RequestController::HeaderCallback(char *buffer, size_t size, size_t nitems, void *userdata)
 {
-    std::string header(buffer, size * nitems);
-    std::cout << "Header: " << header;
     return size * nitems;
 }
 
@@ -141,5 +145,9 @@ size_t RequestController::WriteCallback(void *contents, size_t size, size_t nmem
 size_t RequestController::FileWriteCallback(void *ptr, size_t size, size_t nmemb, FILE *stream)
 {
     size_t written = fwrite(ptr, size, nmemb, stream);
+    if (written < size * nmemb)
+    {
+        std::cerr << "File write error" << std::endl;
+    }
     return written;
 }

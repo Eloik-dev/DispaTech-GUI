@@ -5,7 +5,14 @@
 #include <gtk/gtk.h>
 #include <filesystem>
 #include <iostream>
+#include <thread>
+#include <chrono>
 #include "file_manager.h"
+
+#define DEFAULT_RESTART_SLIDESHOW_DELAY 2000
+
+using namespace std::this_thread;
+using namespace std::chrono;
 
 class Controller
 {

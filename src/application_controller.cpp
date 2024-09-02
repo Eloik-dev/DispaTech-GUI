@@ -74,15 +74,15 @@ GtkWidget *Controller::getVideoWidget(File *file)
 
     GtkMediaStream *media_stream = gtk_media_file_new_for_filename(path.c_str());
 
-    GtkWidget *media_controls = gtk_media_controls_new(media_stream);
-    gtk_widget_set_visible(media_controls, FALSE);
+    // Mute the audio
+    gtk_media_stream_set_muted(media_stream, TRUE);
 
     GtkWidget *video = gtk_video_new_for_media_stream(media_stream);
 
-    gtk_media_controls_set_media_stream(GTK_MEDIA_CONTROLS(media_controls), media_stream);
     gtk_media_stream_play(media_stream);
     return video;
 }
+
 
 bool Controller::file_exists(string path)
 {
@@ -145,8 +145,13 @@ void Controller::startSlideshow()
 {
     this->_fileManager->readFileConfiguration();
 
-    int delay = 0;
+    while (this->_fileManager->files.empty())
+    {
+        sleep_for(seconds(2));
+        this->_fileManager->readFileConfiguration();
+    }
 
+    int delay = 0;
     for (int i = 0; i < this->_fileManager->files.size(); i++)
     {
         File *file = this->_fileManager->files[i];

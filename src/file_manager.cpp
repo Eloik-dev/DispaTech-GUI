@@ -61,6 +61,7 @@ void FileManager::readFileConfiguration()
         if (f.good() == false)
         {
             cerr << "Could not read configuration file" << endl;
+            f.close();
             return;
         }
 
@@ -120,11 +121,6 @@ int FileManager::getFileExtensionCode(string filePath)
         return IMAGE_FILE_CODE;
     }
     
-    if (mimeTypeStr == "image/webp")
-    {
-        return IMAGE_FILE_CODE;
-    }
-
     if (mimeTypeStr == "image/jpeg")
     {
         return IMAGE_FILE_CODE;
