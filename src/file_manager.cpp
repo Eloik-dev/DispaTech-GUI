@@ -60,33 +60,40 @@ void FileManager::readFileConfiguration()
 
         if (f.good() == false)
         {
-            cerr << "Could not read configuration file" << endl;
+            std::cerr << "Could not read configuration file" << std::endl;
             f.close();
             return;
         }
 
         json configuration = json::parse(f);
 
-        if (!this->files.empty())
+        for (File *file : this->files)
         {
-            this->files.clear();
+            delete file;
         }
+        this->files.clear();
 
         for (json::iterator it = configuration.begin(); it != configuration.end(); ++it)
         {
             json file_object = it.value();
+            std::string name = file_object["name"].get<std::string>();
+            int start = file_object["start"].get<double>() * 10;
+            int stop = file_object["stop"].get<double>() * 10;
+            int duration = stop - start;
             File *file = new File{
-                file_object["duration"].get<double>() * 10,
-                file_object["name"].get<std::string>()};
+                start,
+                stop,
+                duration,
+                name};
 
             this->files.push_back(file);
         }
 
-        cout << "Read " << this->files.size() << " files to be shown" << endl;
+        std::cout << "Read " << this->files.size() << " files to be shown" << std::endl;
     }
-    catch (const exception *ex)
+    catch (const std::exception &ex)
     {
-        cerr << "An error occured while reading the files directory: " << ex->what() << endl;
+        std::cerr << "An error occurred while reading the files directory: " << ex.what() << std::endl;
     }
 }
 
@@ -120,12 +127,12 @@ int FileManager::getFileExtensionCode(string filePath)
     {
         return IMAGE_FILE_CODE;
     }
-    
+
     if (mimeTypeStr == "image/jpeg")
     {
         return IMAGE_FILE_CODE;
     }
-    
+
     if (mimeTypeStr == "video/mp4")
     {
         return VIDEO_FILE_CODE;

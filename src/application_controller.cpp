@@ -83,7 +83,6 @@ GtkWidget *Controller::getVideoWidget(File *file)
     return video;
 }
 
-
 bool Controller::file_exists(string path)
 {
     ifstream f(path);
@@ -94,6 +93,20 @@ gboolean Controller::timeoutCallback(gpointer arguments)
 {
     GtkCallbackData *data = static_cast<GtkCallbackData *>(arguments);
     File *file = data->file;
+
+    if (file == nullptr)
+    {
+        if (GTK_IS_WINDOW(data->window))
+        {
+            gtk_window_set_child(GTK_WINDOW(data->window), nullptr);
+        }
+        else
+        {
+            std::cerr << "Error: data->window is not a GtkWindow" << std::endl;
+        }
+        delete data; // Free the memory allocated for GtkCallbackData
+        return FALSE;
+    }
 
     int file_extension_code = FileManager::getFileExtensionCode(FILES_DIRECTORY + file->name);
 
@@ -107,7 +120,7 @@ gboolean Controller::timeoutCallback(gpointer arguments)
         widget = getVideoWidget(file);
         break;
     default:
-        cerr << "There was an error reading the file: " << file->name << endl;
+        std::cerr << "There was an error reading the file: " << file->name << std::endl;
         break;
     }
 
@@ -115,11 +128,10 @@ gboolean Controller::timeoutCallback(gpointer arguments)
     {
         if (GTK_IS_WINDOW(data->window))
         {
-            gtk_window_set_child(GTK_WINDOW(data->window), widget);
         }
         else
         {
-            cerr << "Error: data->window is not a GtkWindow" << endl;
+            std::cerr << "Error: data->window is not a GtkWindow" << std::endl;
         }
     }
 
@@ -138,6 +150,7 @@ gboolean Controller::onRestartSlideshow(gpointer arguments)
     controller->window = data->window;
     controller->startSlideshow();
 
+    delete data;
     return FALSE;
 }
 
@@ -155,15 +168,25 @@ void Controller::startSlideshow()
     for (int i = 0; i < this->_fileManager->files.size(); i++)
     {
         File *file = this->_fileManager->files[i];
+
         GtkCallbackData *data = new GtkCallbackData;
         data->file = file;
         data->window = this->window;
         data->fileManager = this->_fileManager;
 
-        cout << "Next delay: " << delay << endl;
-
         g_timeout_add(delay, timeoutCallback, data);
 
         delay += file->duration;
     }
+}
+
+void Controller::showBlankScreen(int duration)
+{
+    std::cout << "Hiding all for " << duration << std::endl;
+    GtkCallbackData *data = new GtkCallbackData;
+    data->file = nullptr;
+    data->window = this->window;
+    data->fileManager = this->_fileManager;
+
+    g_timeout_add(duration, timeoutCallback, data);
 }

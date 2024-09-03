@@ -18,7 +18,9 @@ class FileManager;
 
 struct File
 {
-    double duration;
+    int start;
+    int stop;
+    int duration;
     std::string name;
 };
 

@@ -34,6 +34,11 @@ private:
      * Shows the next file to be shown
      */
     void startSlideshow();
+    
+    /**
+     * Shows a blank screen
+     */
+    void showBlankScreen(int duration);
 
     static int getFileExtensionCode(std::string);
     static GtkWidget *getImageWidget(File *);
