@@ -3,6 +3,7 @@
 
 #include <string>
 #include <gtk/gtk.h>
+#include <gst/gst.h>
 #include <filesystem>
 #include <iostream>
 #include <thread>
@@ -14,12 +15,26 @@
 using namespace std::this_thread;
 using namespace std::chrono;
 
+class Controller;
+
+struct Partition
+{
+    File *file;
+    GtkWidget *widget;
+};
+
+struct GtkCallbackData
+{
+    Partition *partition;
+    Controller *controller;
+};
+
 class Controller
 {
 private:
-    GtkApplication *application;
-    GtkWidget *window;
-    FileManager *_fileManager;
+    GtkWindow *window;
+    FileManager *fileManager;
+    std::vector<Partition *> partitions;
 
     /**
      * Callback d'activation de l'application
@@ -36,14 +51,28 @@ private:
     void startSlideshow();
     
     /**
+     * Generates widgets and assigns files
+     */
+    void generatePartitions();
+    
+    /**
+     * Reset window partitions
+     */
+    void removePartitions();
+    
+    /**
+     * Hides all widgets in the window
+     */
+    void hideWidgets();
+
+    /**
      * Shows a blank screen
      */
-    void showBlankScreen(int duration);
+    void showBlankScreen();
 
     static int getFileExtensionCode(std::string);
-    static GtkWidget *getImageWidget(File *);
-    static GtkWidget *getVideoWidget(File *);
-
+    GtkWidget* createImageWidget(std::string);
+    GtkWidget* createVideoWidget(std::string);
     /**
      * Validates that a file exists
      */
@@ -55,7 +84,7 @@ public:
     /**
      * Fait l'initialisation de l'application GTK4
      */
-    void initializeApplication(int, char **);
+    int initializeApplication(int, char **);
 };
 
 #endif

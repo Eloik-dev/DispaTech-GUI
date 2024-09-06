@@ -2,8 +2,13 @@
 
 void ConfigurationController::updateLocalConfig(Settings *settings)
 {
-    RequestController *requestController = new RequestController(settings);
+    std::unique_ptr<RequestController> requestController = std::make_unique<RequestController>(settings);
     json result = requestController->get(settings->hostname + "/api/playlist/getPartitionConfig");
+    if (result == false)
+    {
+        return;
+    }
+
     int status = result.at("status").get<int>();
 
     switch (status)
@@ -25,8 +30,13 @@ void ConfigurationController::updateLocalConfig(Settings *settings)
 
 void ConfigurationController::updateFiles(Settings *settings)
 {
-    RequestController *requestController = new RequestController(settings);
+    std::unique_ptr<RequestController> requestController = std::make_unique<RequestController>(settings);
     json result = requestController->get(settings->hostname + "/api/playlist/getPartitionLinks");
+    if (result == false)
+    {
+        return;
+    }
+
     int status = result.at("status").get<int>();
     json links = result.at("data");
 
@@ -42,7 +52,7 @@ void ConfigurationController::updateFiles(Settings *settings)
             std::string filePath = TEMP_DIRECTORY + fileName;
 
             bool success = requestController->getFile(linkData.at("link"), filePath);
-            if (success == false)
+            if (!success)
             {
                 std::cerr << "Failed to download file at: " << filePath << std::endl;
                 continue;
@@ -50,7 +60,6 @@ void ConfigurationController::updateFiles(Settings *settings)
 
             std::cout << "File saved to " << filePath << std::endl;
         }
-
         break;
     }
 

@@ -6,7 +6,6 @@ namespace fs = filesystem;
 
 FileManager::FileManager()
 {
-    this->currentFileIndex = 0;
     this->initializeFilesDirectory();
     this->initializeTempFilesDirectory();
 }
@@ -73,7 +72,8 @@ void FileManager::readFileConfiguration()
         }
         this->files.clear();
 
-        for (json::iterator it = configuration.begin(); it != configuration.end(); ++it)
+        int index = 0;
+        for (json::iterator it = configuration.begin(); it != configuration.end(); ++it, ++index)
         {
             json file_object = it.value();
             std::string name = file_object["name"].get<std::string>();
@@ -81,6 +81,7 @@ void FileManager::readFileConfiguration()
             int stop = file_object["stop"].get<double>() * 10;
             int duration = stop - start;
             File *file = new File{
+                index,
                 start,
                 stop,
                 duration,

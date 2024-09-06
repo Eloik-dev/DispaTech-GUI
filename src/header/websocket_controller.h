@@ -17,7 +17,7 @@ class WebSocketController
 {
 private:
     struct Settings *_settings;
-    sio::client *_client;
+    std::unique_ptr<sio::client> _client;
 
     void initializeConnection();
 

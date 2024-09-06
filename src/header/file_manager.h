@@ -18,24 +18,17 @@ class FileManager;
 
 struct File
 {
+    int index;
     int start;
     int stop;
     int duration;
     std::string name;
 };
 
-struct GtkCallbackData
-{
-    File *file;
-    GtkWidget *window;
-    FileManager *fileManager;
-};
-
 class FileManager
 {
 private:
     std::vector<File *> settings;
-    int currentFileIndex;
 
     /**
      * Checks if the `files` directory exists, if not generates it

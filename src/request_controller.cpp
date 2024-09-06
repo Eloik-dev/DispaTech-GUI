@@ -19,6 +19,7 @@ json RequestController::get(const std::string &url)
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 150);
 
         struct curl_slist *headers = NULL;
         std::string authorization = "Authorization: jwt_token " + this->_settings->jwt_token;
@@ -27,6 +28,7 @@ json RequestController::get(const std::string &url)
 
         res = curl_easy_perform(curl);
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+        curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
 
         if (res != CURLE_OK || httpCode >= 400)
@@ -54,6 +56,7 @@ json RequestController::post(const std::string &url, const json &data)
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.dump().c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 150);
 
         struct curl_slist *headers = NULL;
         std::string authorization = "Authorization: jwt_token " + this->_settings->jwt_token;
@@ -62,6 +65,7 @@ json RequestController::post(const std::string &url, const json &data)
 
         res = curl_easy_perform(curl);
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+        curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
 
         if (res != CURLE_OK || httpCode >= 400)
@@ -99,7 +103,7 @@ bool RequestController::getFile(const std::string &fileUrl, const std::string &d
         curl_easy_setopt(curl, CURLOPT_URL, fileUrl.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, FileWriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 150);
         curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, HeaderCallback);
 
         struct curl_slist *headerList = NULL;
@@ -112,6 +116,7 @@ bool RequestController::getFile(const std::string &fileUrl, const std::string &d
         res = curl_easy_perform(curl);
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
 
+        curl_slist_free_all(headerList);
         curl_easy_cleanup(curl);
         fclose(fp);
 

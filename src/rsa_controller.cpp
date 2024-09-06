@@ -12,6 +12,12 @@ bool RSAController::encryptString(const std::string &regKey, const std::string &
 
     std::string pubKeyStr((std::istreambuf_iterator<char>(pubKeyFile)), std::istreambuf_iterator<char>());
     BIO *bio = BIO_new_mem_buf(pubKeyStr.data(), pubKeyStr.size());
+    if (!bio)
+    {
+        std::cerr << "Error creating BIO." << std::endl;
+        return false;
+    }
+
     EVP_PKEY *evpKey = PEM_read_bio_PUBKEY(bio, nullptr, nullptr, nullptr);
     BIO_free(bio);
 
@@ -29,33 +35,12 @@ bool RSAController::encryptString(const std::string &regKey, const std::string &
         return false;
     }
 
-    if (EVP_PKEY_encrypt_init(ctx) <= 0)
+    if (EVP_PKEY_encrypt_init(ctx) <= 0 ||
+        EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_OAEP_PADDING) <= 0 ||
+        EVP_PKEY_CTX_set_rsa_oaep_md(ctx, EVP_sha256()) <= 0 ||
+        EVP_PKEY_CTX_set_rsa_mgf1_md(ctx, EVP_sha1()) <= 0)
     {
         std::cerr << "Error initializing encryption." << std::endl;
-        EVP_PKEY_CTX_free(ctx);
-        EVP_PKEY_free(evpKey);
-        return false;
-    }
-
-    if (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_OAEP_PADDING) <= 0)
-    {
-        std::cerr << "Error setting padding." << std::endl;
-        EVP_PKEY_CTX_free(ctx);
-        EVP_PKEY_free(evpKey);
-        return false;
-    }
-
-    if (EVP_PKEY_CTX_set_rsa_oaep_md(ctx, EVP_sha256()) <= 0)
-    {
-        std::cerr << "Error setting OAEP message digest." << std::endl;
-        EVP_PKEY_CTX_free(ctx);
-        EVP_PKEY_free(evpKey);
-        return false;
-    }
-
-    if (EVP_PKEY_CTX_set_rsa_mgf1_md(ctx, EVP_sha1()) <= 0)
-    {
-        std::cerr << "Error setting MGF1 message digest." << std::endl;
         EVP_PKEY_CTX_free(ctx);
         EVP_PKEY_free(evpKey);
         return false;

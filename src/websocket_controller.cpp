@@ -7,18 +7,17 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Settings, env, hostname, public_encryption_ke
 WebSocketController::WebSocketController(struct Settings *settings)
 {
     this->_settings = settings;
-    this->_client = new sio::client();
+    this->_client = std::make_unique<sio::client>();
 
     this->initThread = std::thread(&WebSocketController::initializeConnection, this);
 }
 
 WebSocketController::~WebSocketController()
 {
-    if (this->initThread.joinable())
+    if (initThread.joinable())
     {
-        this->initThread.join();
+        initThread.join();
     }
-    delete this->_client;
 }
 
 void WebSocketController::initializeConnection()
